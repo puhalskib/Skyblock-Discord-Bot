@@ -1,8 +1,10 @@
 class minecraftProfile {
+    
     constructor(uuid, username, profile) {
-
+        this.uuid = uuid;
+        this.username =  username;
+        this.profile = profile;
     }
-
 
     getStatus(user, online, switched) {
         const postfix = "playing skyblock";
@@ -31,3 +33,6 @@ class minecraftProfile {
         }
     }
 }
+
+
+module.exports = minecraftProfile;

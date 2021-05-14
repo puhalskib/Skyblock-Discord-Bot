@@ -1,12 +1,10 @@
 const discord_js = require("discord.js");
 const WOKCommands = require("wokcommands");
-const dotenv = require("dotenv");
-dotenv.config();
+const dotenv = require("dotenv").config();
 
 const client = new discord_js.Client();
 
 const guildID = process.env.GUILD_ID;
-console.log(guildID);
 
 client.on('ready', () => {
     new WOKCommands(client, {
