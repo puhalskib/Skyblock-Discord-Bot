@@ -12,6 +12,7 @@ client.on('ready', () => {
         testServers: [guildID],
         showWarns: false
     });
+
 });
 
 client.login(process.env.TOKEN);

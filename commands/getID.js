@@ -5,7 +5,7 @@ module.exports = {
     slash: true,
     testOnly: true,
     description: 'get a minecraft uuid',
-    expectedArgs: '<uname>',
+    expectedArgs: '<username>',
     minArgs: 1,
     maxArgs: 1,
     callback: async ({ args }) => {
