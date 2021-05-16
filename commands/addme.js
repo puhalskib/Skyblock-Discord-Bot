@@ -9,65 +9,90 @@ module.exports = {
     expectedArgs: '<username> <skyblockprofile>',
     minArgs: 2,
     maxArgs: 2,
-    callback: async ({ args }) => {
-        let a;
-        let c;
+    callback: async ({ args, interaction, client }) => {
+        //request guild name
+        let guildname;
+        console.log('GET: https://discord.com/api/v8/guilds/' + interaction.guild_id);
+        client.guilds.fetch(interaction.guild_id)
+            .then(guild => guildname = guild.name)
+            .catch(console.error);
+        //request profile information
+        let userProfiles;
+        let mcUser;
         console.log('GET: https://api.mojang.com/users/profiles/minecraft/' + args[0]);
         await fetch('https://api.mojang.com/users/profiles/minecraft/' + args[0])
             .then(res => res.json())
-            .then(body => c = body)
+            .then(body => mcUser = body)
             .catch(error => {return 'Error: ' + error});
-        console.log('GET: https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + c.id);
-        await fetch('https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + c.id)
+        console.log('GET: https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + mcUser.id);
+        await fetch('https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + mcUser.id)
             .then(res => res.json())
-            .then(body => a = body);
-        if(a.success == false) {
-            return 'error "' + a.cause + '"';
+            .then(body => userProfiles = body);
+        if(userProfiles.success == false) {
+            return 'error "' + userProfiles.cause + '"';
         }
-        let b = a.profiles;
-        for(let i = 0; b[i] != undefined; i++) {
+        let prof = userProfiles.profiles;
+
+
+        //update the db
+        //check for correct profile
+        for(let i = 0; prof[i] != undefined; i++) {
             //console.log(b[i].profile_id);
-            if(b[i].cute_name == args[1]) {
-                if(b[i].banking.balance == undefined) {
+            if(prof[i].cute_name == args[1]) {
+                if(prof[i].banking.balance == undefined) {
                     return 'account ' + args[1] + ' has no bank'
                 }
+                //check if it is a new guild
+                if(!db.has(interaction.guild_id)) {
+                    db.set(interaction.guild_id, {
+                        'guild_name': guildname,
+                        'profiles': {}
+                    });
+                }
+                
+
+                let wholeguild = db.get(interaction.guild_id);
                 //add new profile to the db
-                if(!db.has(b[i].profile_id)) {
-                    db.set(b[i].profile_id, {
-                        'cute_name': b[i].cute_name,
+                if(wholeguild.profiles[prof[i].profile_id] == undefined) {
+                    wholeguild.profiles[prof[i].profile_id] = {
+                        'cute_name': prof[i].cute_name,
                         'members': [
                             {
                                 'username': args[0],
-                                'uuid': c.id,
-                                'purse': b[i].members[c.id].coin_purse
+                                'uuid': mcUser.id,
+                                'purse': prof[i].members[mcUser.id].coin_purse
                             }
                         ],
-                        'balance': b[i].banking.balance
-                    })
+                        'balance': prof[i].banking.balance
+                    };
+                    db.set(interaction.guild_id, wholeguild);
                 } else {
                     //console.log('profile is already in db');
-                    let dbprofile = db.get(b[i].profile_id);
+                    dbprofile = wholeguild.profiles[prof[i].profile_id];
                     let memberExist = false;
+                    let profileindex = -1;
                     for(var j = 0; j < dbprofile.members.length; j++) {
                         //console.log('if ' + dbprofile.members[j].username + ' == ' +args[0] );
                         if(dbprofile.members[j].username == args[0]) {
                             memberExist = true;
+                            profileindex = j;
                         }
                     }
                     //console.log('memberExist:' + memberExist);
                     
                     if(!memberExist) {
-                        dbprofile.members.push({
+                        wholeguild.profiles[prof[i].profile_id].members.push({
                             'username': args[0],
-                            'uuid': c.id,
-                            'purse': b[i].members[c.id].coin_purse
+                            'uuid': mcUser.id,
+                            'purse': prof[i].members[mcUser.id].coin_purse
                         });
-                        db.set(b[i].profile_id, dbprofile);
+                        db.set(interaction.guild_id, wholeguild);
                     } else {
                         return args[0] + ' is already in db';
                     }
                 }
-                return JSON.stringify(db.get(b[i].profile_id));
+                //need to have return statement here
+                return JSON.stringify(db.get(interaction.guild_id));
             }
         }
 
