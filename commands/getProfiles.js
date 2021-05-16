@@ -24,7 +24,7 @@ module.exports = {
             .setTitle(args[0] + "'s Profiles");
 
         for(var i = 0; i < c.length; i++) {
-            embedmsg.addField(a.player.stats.SkyBlock.profiles[c[i]].cute_name, c[i], true);
+            embedmsg.addField(a.player.stats.SkyBlock.profiles[c[i]].cute_name, c[i]);
         }
         return embedmsg;
     }
