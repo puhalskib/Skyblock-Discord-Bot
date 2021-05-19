@@ -1,13 +1,19 @@
 const Discord = require('discord.js');
 const JSONdb = require('simple-json-db');
-const db = new JSONdb('database.json');
+
 
 module.exports = {
     slash: true,
     testOnly: true,
     description: 'returns graphical leaderboard"',
     callback: ({ interaction }) => {
-        let guildprofiles = db.get(interaction.guild_id);
+        const db = new JSONdb('database.json');
+        var guildprofiles = db.get(interaction.guild_id);
+        //console.log(interaction.guild_id);
+        //console.log(JSON.stringify(guildprofiles));
+        if(guildprofiles == undefined) {
+            return 'There are no profiles in this server';
+        }
 
         //get largest bank value
         var max = 0;
@@ -20,12 +26,12 @@ module.exports = {
 
         //print according to relative size
         for (x in guildprofiles.profiles) {
-            let s = '';
+            var s = '';
             for (var j = 0; j < Math.floor((20 * guildprofiles.profiles[x].balance) / max); j++) {
                 s += "⬜";
             }
             //find all members names
-            let names = '';
+            var names = '';
             for (var i = 0; i < guildprofiles.profiles[x].members.length; i++) {
                 if(i != 0) {
                     names += '/';

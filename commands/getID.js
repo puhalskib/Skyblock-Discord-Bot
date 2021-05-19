@@ -9,7 +9,7 @@ module.exports = {
     minArgs: 1,
     maxArgs: 1,
     callback: async ({ args }) => {
-        let a;
+        var a;
         console.log('GET: https://api.mojang.com/users/profiles/minecraft/' + args[0]);
         await fetch('https://api.mojang.com/users/profiles/minecraft/' + args[0])
             .then(res => res.json())

@@ -10,7 +10,7 @@ module.exports = {
     minArgs: 1,
     maxArgs: 1,
     callback: async ({ args }) => {
-        let a;
+        var a;
         console.log('GET: https://api.hypixel.net/player?key=' + process.env.HYPIXEL_KEY + '&name=' + args[0]);
         await fetch('https://api.hypixel.net/player?key=' + process.env.HYPIXEL_KEY + '&name=' + args[0])
             .then(res => res.json())
@@ -19,7 +19,7 @@ module.exports = {
             return 'error "' + a.cause + '"';
         }
         
-        let c = Object.keys(a.player.stats.SkyBlock.profiles);
+        var c = Object.keys(a.player.stats.SkyBlock.profiles);
         const embedmsg = new Discord.MessageEmbed()
             .setTitle(args[0] + "'s Profiles");
 

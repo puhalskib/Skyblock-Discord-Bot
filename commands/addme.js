@@ -1,6 +1,7 @@
 const JSONdb = require('simple-json-db');
 const db = new JSONdb('database.json');
 const fetch = require('node-fetch');
+const DiscordJS = require('discord.js');
 
 module.exports = {
     slash: true,
@@ -27,7 +28,8 @@ module.exports = {
         console.log('GET: https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + mcUser.id);
         await fetch('https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&uuid=' + mcUser.id)
             .then(res => res.json())
-            .then(body => userProfiles = body);
+            .then(body => userProfiles = body)
+            .catch(error => {return "Error: " + error });
         if(userProfiles.success == false) {
             return 'error "' + userProfiles.cause + '"';
         }
@@ -88,11 +90,28 @@ module.exports = {
                         });
                         db.set(interaction.guild_id, wholeguild);
                     } else {
-                        return args[0] + ' is already in db';
+                        return args[0] + ' has already been added';
                     }
                 }
                 //need to have return statement here
-                return JSON.stringify(db.get(interaction.guild_id));
+                let embed = new DiscordJS.MessageEmbed();
+                let guildProfiles = db.get(interaction.guild_id);
+                embed.setTitle(guildProfiles.guild_name + ' Profiles');
+                for(var a in guildProfiles.profiles) {
+                    let x = guildProfiles.profiles[a];
+                    //console.log(JSON.stringify(x));
+                    var cname = x.cute_name;
+                    let mem = '';
+                    for(var k = 0; k < x.members.length; k++) {
+                        if(k != 0) {
+                            mem += '\n';
+                        }
+                        mem += '- ' + x.members[k].username;
+                    }
+                    embed.addField(cname, mem);
+                }
+
+                return embed;
             }
         }
 
