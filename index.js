@@ -18,7 +18,7 @@ client.on('ready', () => {
 });
 
 client.login(process.env.TOKEN);
-/*
+
 function updateLoop() {
 
 }
@@ -27,21 +27,26 @@ function updateGuild(guildID) {
     var db = new JSONdb('database.json');
     var guildJson = db.get(guildID);
 
-    updateProfiles(guildJson)
+    var profiles = Object.keys(guildJson.profiles);
+
+    //grab all the profile balances
+    for(var i = 0; i < profiles.length; i++) {
+        var profileBalance = updateProfile(profiles[i]);
+    }
+
+    
 
 }
 
 
 
-function updateProfile(uuid, profileId) {
+function updateProfile(profileId) {
     var mcUser;
-    console.log('GET: https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY +'&uuid=' + uuid);
-    await fetch('https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY +'&uuid=' + uuid)
+    console.log('GET: https://api.hypixel.net/skyblock/profile?key=' + process.env.HYPIXEL_KEY + '&profile=' + profileId);
+    await fetch('https://api.hypixel.net/skyblock/profiles?key=' + process.env.HYPIXEL_KEY + '&profile=' + profileId)
         .then(res => res.json())
         .then(body => mcUser = body)
         .catch(error => {return 'Error: ' + error});
     
-    //return mcUser.profiles.
+    return mcUser.profile.banking.balance;
 }
-
-*/
