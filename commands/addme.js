@@ -46,9 +46,11 @@ module.exports = {
                 }
                 //check if it is a new guild
                 if(!db.has(interaction.guild_id)) {
+                    //Create a new guild
                     db.set(interaction.guild_id, {
                         'guild_name': guildname,
-                        'profiles': {}
+                        'profiles': {},
+                        'member_num': 0
                     });
                 }
                 
@@ -67,6 +69,7 @@ module.exports = {
                         ],
                         'balance': prof[i].banking.balance
                     };
+                    wholeguild.member_num++;
                     db.set(interaction.guild_id, wholeguild);
                 } else {
                     //console.log('profile is already in db');
@@ -88,6 +91,7 @@ module.exports = {
                             'uuid': mcUser.id,
                             'purse': prof[i].members[mcUser.id].coin_purse
                         });
+                        wholeguild.member_num++;
                         db.set(interaction.guild_id, wholeguild);
                     } else {
                         return args[0] + ' has already been added';
